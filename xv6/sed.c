@@ -8,10 +8,11 @@
 char buf[512];
 
 int
-replace(int size, char *haystack, int needleSize, char *needle, char *replacement) {
+replace(int size, char *haystack, char *needle, char *replacement) {
 	int i, j = 0, flag = 0;
 	int start = 0, len;
 	int output = 0;
+	int needleSize = strlen(needle);
 
 	char temp;
 
@@ -51,7 +52,7 @@ void
 sed(int fd, char *from, char *to) {
 	int n, total = 0;
 	while((n = read(fd, buf, sizeof(buf))) > 0) {
-		total += replace(n, buf, 3, from, to);
+		total += replace(n, buf, from, to);
 	}
 	if(n < 0) {
 		printf(1, "sed: read error\n");
