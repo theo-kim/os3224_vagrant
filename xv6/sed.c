@@ -1,5 +1,5 @@
 // Theodore Kim
-// sed implementation (HW 1, Q 2 - 4 + Extra Credit)
+// sed implementation (HW 1, Q 2 - 4)
 // CS-UY 3224
 
 #include "types.h"
@@ -9,10 +9,10 @@ char buf[512];
 
 int
 replace(int size, char *haystack, char *needle, char *replacement) {
-	int i, j = 0, flag = 0;
-	int start = 0, len;
-	int output = 0;
-	int needleSize = strlen(needle);
+	int i, j = 0, flag = 0,
+		start = 0, len,
+		output = 0, 
+		needleSize = strlen(needle), replacementSize = strlen(replacement);
 
 	char temp;
 
@@ -24,10 +24,10 @@ replace(int size, char *haystack, char *needle, char *replacement) {
 				++output;
 				flag = 1;
 				while (j > 0) {
-					haystack[i - (needleSize - j)] = replacement[j - 1];
+					if (j - 1 < replacementSize) 
+						haystack[i - (needleSize - j)] = replacement[j - 1];
 					--j;
 				}
-				j = 0;
 			}
 		}
 		else if (haystack[i] == '\n') {
@@ -41,9 +41,8 @@ replace(int size, char *haystack, char *needle, char *replacement) {
 			start = i;
 			len = 0;
 		}
-		else {
+		else
 			j = 0;
-		}
 	}
 	return output;
 }
@@ -59,15 +58,12 @@ sed(int fd, char *from, char *to) {
 		close(fd);
 		exit();
 	}
-	else {
+	else
 		printf(1, "\n\nFound and Replaced %d occurences\n", total);
-	}
 }
 
 int
 main(int argc, char *argv[]) {
-	// buf = malloc(512 * sizeof(*char));
-
 	int i, fd, fromSet = 0;
 	char *filename, *from, *to;
 
@@ -75,7 +71,6 @@ main(int argc, char *argv[]) {
    		sed(0, "the", "xyz");
 	    exit();
 	}
-
 	else if (argc == 2) {
 		if ((fd = open(argv[1], 0)) < 0) {
 			printf(1, "sed: cannot open %s\n", argv[1]);
@@ -85,7 +80,25 @@ main(int argc, char *argv[]) {
 		sed(fd, "the", "xyz");
 		close(fd);
 	}
+	else if (argc == 3) {
+		for (i = 1; i < argc; ++i) {
+			if (argv[i][0] == '-') {
+				if (fromSet == 0) {
+					from = argv[i] + 1;
+					fromSet = 1;
+				}
+				else
+					to = argv[i] + 1;
+			}
+			else {
+				printf(1, "sed: illegal argument %s\n", argv[1]);
+				exit();
+			}
+		}
 
+		sed(0, from, to);
+	    exit();
+	}
 	else if (argc == 4) {
 		for (i = 1; i < argc; ++i) {
 			if (argv[i][0] == '-') {
@@ -93,13 +106,11 @@ main(int argc, char *argv[]) {
 					from = argv[i] + 1;
 					fromSet = 1;
 				}
-				else {
+				else
 					to = argv[i] + 1;
-				}
 			}
-			else {
+			else
 				filename = argv[i];
-			}
 		}
 
 		if ((fd = open(filename, 0)) < 0) {
@@ -111,9 +122,8 @@ main(int argc, char *argv[]) {
 		close(fd);
 	}
 
-	else {
-		printf(1, "Sed accepts either 0, 1 or 3 arguments.\n");
-	}
+	else
+		printf(1, "Sed accepts either 0 - 3 arguments.\n");
 
 	exit();
 }
